@@ -1,0 +1,16 @@
+name: mReports
+version: ${version}
+main: io.github.miklires.mreports.MReportsPlugin
+api-version: '26.2'
+author: miklires
+description: Auditable player reports and moderation queue
+folia-supported: true
+softdepend: [mChat, mBans, PlaceholderAPI]
+libraries:
+  - com.h2database:h2:2.3.232
+permissions:
+  mreports.use: { default: true }
+  mreports.notify: { default: op }
+  mreports.exempt: { default: false }
+  mreports.staff: { default: op }
+  mreports.reload: { default: op }
