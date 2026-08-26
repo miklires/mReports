@@ -1,0 +1,14 @@
+config-version: 1
+submission:
+  cooldown-seconds: 30
+  duplicate-window-seconds: 300
+  maximum-details-length: 300
+  categories: [CHEATING, CHAT, TEAMING, GRIEFING, OTHER]
+storage:
+  retention-days: 90
+metrics:
+  enabled: true
+  bstats-id: 0
+updates:
+  enabled: true
+  modrinth-project-id: ''
