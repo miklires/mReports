@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import io.github.miklires.mreports.api.ReportStatus;
+import io.github.miklires.mreports.api.ReportPriority;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
@@ -17,6 +18,21 @@ class ReportRepositoryTest {
             assertEquals(first.report().id(), second.report().id());
             assertEquals(2, second.report().duplicateCount());
             assertEquals("more", second.report().details());
+        }
+    }
+
+    @Test void supportsPrioritySearchHistoryAndLongDetails() {
+        try (ReportRepository repository = new ReportRepository("jdbc:h2:mem:workflow;DB_CLOSE_DELAY=-1")) {
+            UUID reporter = UUID.randomUUID(), target = UUID.randomUUID(), moderator = UUID.randomUUID();
+            String details = "x".repeat(1200);
+            long id = repository.submit(reporter, "Reporter", target, "Target", "CHEATING", details, 0).join().report().id();
+            assertTrue(repository.setPriority(id, moderator, "Mod", ReportPriority.URGENT).join());
+            assertEquals(ReportPriority.URGENT, repository.find(id).join().orElseThrow().priority());
+            assertEquals(id, repository.search("target", 10).join().getFirst().id());
+            assertEquals(id, repository.history(reporter, 10).join().getFirst().id());
+            assertTrue(repository.claim(id, moderator, "Mod").join());
+            assertTrue(repository.release(id, moderator, "Mod").join());
+            assertEquals(ReportStatus.OPEN, repository.find(id).join().orElseThrow().status());
         }
     }
 
