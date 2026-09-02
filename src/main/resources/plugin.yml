@@ -12,5 +12,7 @@ permissions:
   mreports.use: { default: true }
   mreports.notify: { default: op }
   mreports.exempt: { default: false }
+  mreports.bypass.cooldown: { default: op }
+  mreports.history.own: { default: true }
   mreports.staff: { default: op }
   mreports.reload: { default: op }

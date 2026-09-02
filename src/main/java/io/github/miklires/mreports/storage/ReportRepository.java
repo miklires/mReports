@@ -176,6 +176,11 @@ public final class ReportRepository implements AutoCloseable {
             statement.setObject(1, playerId); statement.setObject(2, playerId); statement.setInt(3, Math.clamp(limit, 1, 200));
         });
     }
+    public CompletableFuture<List<ReportView>> submittedBy(UUID reporterId, int limit) {
+        return list("SELECT * FROM reports WHERE reporter_id=? ORDER BY created_at DESC LIMIT ?", statement -> {
+            statement.setObject(1, reporterId); statement.setInt(2, Math.clamp(limit, 1, 200));
+        });
+    }
     public CompletableFuture<List<ReportView>> search(String query, int limit) {
         String term = "%" + bounded(query, 64, "search query").toLowerCase(java.util.Locale.ROOT) + "%";
         return list("SELECT * FROM reports WHERE LOWER(reporter_name) LIKE ? OR LOWER(target_name) LIKE ? OR LOWER(category) LIKE ? OR LOWER(COALESCE(handler_name,'')) LIKE ? ORDER BY updated_at DESC LIMIT ?", statement -> {

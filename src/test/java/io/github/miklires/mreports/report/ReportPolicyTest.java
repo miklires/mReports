@@ -15,4 +15,12 @@ class ReportPolicyTest {
         assertEquals(ReportPolicy.Result.ALLOWED, policy.validate(reporter, target, false));
         assertEquals(ReportPolicy.Result.COOLDOWN, policy.validate(reporter, target, false));
     }
+    @Test void enforcesRollingLimitAndAllowsExplicitBypass() {
+        UUID reporter = UUID.randomUUID(), target = UUID.randomUUID();
+        ReportPolicy policy = new ReportPolicy(Clock.fixed(Instant.EPOCH, ZoneOffset.UTC), Duration.ZERO, Duration.ofMinutes(10), 2, 100);
+        assertEquals(ReportPolicy.Result.ALLOWED, policy.validate(reporter, target, false));
+        assertEquals(ReportPolicy.Result.ALLOWED, policy.validate(reporter, UUID.randomUUID(), false));
+        assertEquals(ReportPolicy.Result.RATE_LIMIT, policy.validate(reporter, UUID.randomUUID(), false));
+        assertEquals(ReportPolicy.Result.ALLOWED, policy.validate(reporter, UUID.randomUUID(), false, true));
+    }
 }

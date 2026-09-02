@@ -6,6 +6,11 @@ submission:
   cooldown-seconds: 30
   duplicate-window-seconds: 300
   maximum-details-length: 300
+  minimum-details-length: 3
+  rate-limit:
+    maximum-reports: 5
+    window-seconds: 600
+    maximum-tracked-players: 10000
   # 1..32 uppercase letters, digits or underscores; at most 32 categories.
   categories: [CHEATING, CHAT, TEAMING, GRIEFING, OTHER]
 storage:

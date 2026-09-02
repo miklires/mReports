@@ -7,4 +7,6 @@ public interface MReportsApi {
     CompletableFuture<ReportView> submit(UUID reporterId, String reporterName, UUID targetId, String targetName, String category, String details);
     CompletableFuture<Optional<ReportView>> find(long id);
     CompletableFuture<List<ReportView>> openReports(int limit);
+    CompletableFuture<List<ReportView>> search(String query, int limit);
+    CompletableFuture<List<ReportView>> history(UUID playerId, int limit);
 }
