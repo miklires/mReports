@@ -1,14 +1,21 @@
 config-version: 1
+# Bundled UI languages: en_US and ru_RU.
+language: en_US
 submission:
+  # Time values are seconds and are capped at one year.
   cooldown-seconds: 30
   duplicate-window-seconds: 300
   maximum-details-length: 300
+  # 1..32 uppercase letters, digits or underscores; at most 32 categories.
   categories: [CHEATING, CHAT, TEAMING, GRIEFING, OTHER]
 storage:
+  # Closed reports older than this are removed on startup (1..36,500 days).
   retention-days: 90
 metrics:
-  enabled: true
+  # Disabled until a public bStats project ID is assigned.
+  enabled: false
   bstats-id: 0
 updates:
+  # Checks Modrinth without downloading or installing files automatically.
   enabled: true
-  modrinth-project-id: ''
+  modrinth-project-id: 'ZRybXlNb'

@@ -19,7 +19,7 @@ public final class ReportGui implements Listener {
     public ReportGui(MReportsPlugin plugin, ReportService service){this.plugin=plugin;this.service=service;}
     public void open(Player player, UUID targetId, String targetName) {
         CategoryHolder holder = new CategoryHolder(targetId, targetName);
-        Inventory inventory = Bukkit.createInventory(holder, 27, ReportService.color("&cРепорт: " + targetName)); holder.inventory(inventory);
+        Inventory inventory = Bukkit.createInventory(holder, 27, ReportService.color(service.text("&cReport: ","&cРепорт: ") + targetName)); holder.inventory(inventory);
         int slot=10; for(String category: service.categories()) { if(slot==17) break; inventory.setItem(slot++, item(category)); }
         player.openInventory(inventory);
     }
@@ -34,10 +34,10 @@ public final class ReportGui implements Listener {
     public void submit(Player player, UUID target, String name, String category, String details) {
         Player online=Bukkit.getPlayer(target); boolean exempt=online!=null && online.hasPermission("mreports.exempt");
         service.submit(player,target,name,category,details,exempt).whenComplete((result,error)->plugin.scheduler().player(player,()->{
-            if(error!=null){player.sendMessage(ReportService.color("&cНе удалось сохранить репорт."));return;}
-            if(!result.success()){player.sendMessage(ReportService.color("&cРепорт отклонён: &f"+result.failure()));return;}
-            player.sendMessage(ReportService.color("&aРепорт #"+result.submission().report().id()+" принят"+(result.submission().merged()?" и объединён с предыдущим.":".")));
+            if(error!=null){player.sendMessage(ReportService.color(service.text("&cCould not save the report.","&cНе удалось сохранить репорт.")));return;}
+            if(!result.success()){player.sendMessage(ReportService.color(service.text("&cReport rejected: &f","&cРепорт отклонён: &f")+result.failure()));return;}
+            player.sendMessage(ReportService.color(service.text("&aReport #","&aРепорт #")+result.submission().report().id()+service.text(" accepted"," принят")+(result.submission().merged()?service.text(" and merged with the previous report."," и объединён с предыдущим."):".")));
         }));
     }
-    private static ItemStack item(String category){ ItemStack item=new ItemStack(Material.PAPER); ItemMeta meta=item.getItemMeta(); meta.setDisplayName(ReportService.color("&e"+category)); meta.setLore(List.of(ReportService.color("&7Нажмите, чтобы отправить"))); item.setItemMeta(meta); return item; }
+    private ItemStack item(String category){ ItemStack item=new ItemStack(Material.PAPER); ItemMeta meta=item.getItemMeta(); meta.setDisplayName(ReportService.color("&e"+category)); meta.setLore(List.of(ReportService.color(service.text("&7Click to submit","&7Нажмите, чтобы отправить")))); item.setItemMeta(meta); return item; }
 }

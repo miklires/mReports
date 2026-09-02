@@ -18,10 +18,10 @@ public final class ReportCommand implements BasicCommand {
     public ReportCommand(ReportService service, ReportGui gui){this.service=service;this.gui=gui;}
     @Override public void execute(@NotNull CommandSourceStack source,@NotNull String[] args){
         CommandSender sender=source.getSender(); if(!(sender instanceof Player player)){sender.sendMessage("Players only");return;}
-        if(!player.hasPermission("mreports.use")){player.sendMessage(ReportService.color("&cНедостаточно прав."));return;}
+        if(!player.hasPermission("mreports.use")){player.sendMessage(ReportService.color(service.text("&cYou do not have permission.","&cНедостаточно прав.")));return;}
         if(args.length<1){player.sendMessage("Usage: /report <player> [category] [details]");return;}
         OfflinePlayer target=Bukkit.getPlayerExact(args[0]); if(target==null) target=Bukkit.getOfflinePlayerIfCached(args[0]);
-        if(target==null || target.getName()==null){player.sendMessage(ReportService.color("&cИгрок не найден в кэше сервера."));return;}
+        if(target==null || target.getName()==null){player.sendMessage(ReportService.color(service.text("&cPlayer not found in the server cache.","&cИгрок не найден в кэше сервера.")));return;}
         if(args.length==1){gui.open(player,target.getUniqueId(),target.getName());return;}
         String details=args.length<3?"Submitted by command":String.join(" ",java.util.Arrays.copyOfRange(args,2,args.length));
         gui.submit(player,target.getUniqueId(),target.getName(),args[1],details);
