@@ -4,12 +4,14 @@ import io.github.miklires.mreports.api.MReportsApi;
 import io.github.miklires.mreports.command.MyReportsCommand;
 import io.github.miklires.mreports.command.ReportCommand;
 import io.github.miklires.mreports.command.ReportsCommand;
+import io.github.miklires.mreports.config.ConfigValidator;
 import io.github.miklires.mreports.gui.ReportGui;
 import io.github.miklires.mreports.gui.StaffQueueGui;
 import io.github.miklires.mreports.evidence.ChatEvidenceService;
 import io.github.miklires.mreports.report.ReportService;
 import io.github.miklires.mreports.storage.ReportRepository;
 import io.github.miklires.mreports.util.PluginScheduler;
+import io.github.miklires.mreports.update.UpdateChecker;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.ServicePriority;
@@ -21,12 +23,14 @@ import java.util.List;
 
 public final class MReportsPlugin extends JavaPlugin {
     private PluginScheduler scheduler;
+    private ConfigValidator configValidator;
     private ReportRepository repository;
     private ReportService service;
 
     @Override public void onEnable() {
-        saveDefaultConfig();
         scheduler = new PluginScheduler(this);
+        configValidator = new ConfigValidator(this);
+        configValidator.load();
         try {
             repository = new ReportRepository(getDataFolder().toPath().resolve("data").resolve("mreports"));
             ChatEvidenceService evidence = new ChatEvidenceService(this);
@@ -50,6 +54,7 @@ public final class MReportsPlugin extends JavaPlugin {
             });
             int id = Math.max(0, getConfig().getInt("metrics.bstats-id", 0));
             if (getConfig().getBoolean("metrics.enabled", true) && id > 0) new Metrics(this, id);
+            new UpdateChecker(this).start();
             getLogger().info("mReports " + getPluginMeta().getVersion() + " is ready");
         } catch (RuntimeException exception) {
             getLogger().severe("mReports failed to start: " + exception.getMessage());
@@ -63,5 +68,5 @@ public final class MReportsPlugin extends JavaPlugin {
     }
 
     public PluginScheduler scheduler() { return scheduler; }
-    public void reloadRuntime() { reloadConfig(); service.reload(); }
+    public void reloadRuntime() { configValidator.load(); service.reload(); }
 }

@@ -10,5 +10,6 @@ class SafeWebhookUrlTest {
         assertNull(SafeWebhookUrl.parse("http://discord.com/api/webhooks/1/token"));
         assertNull(SafeWebhookUrl.parse("https://discord.com.evil.example/api/webhooks/1/token"));
         assertNull(SafeWebhookUrl.parse("https://discord.com/channels/1"));
+        assertNull(SafeWebhookUrl.parse("https://discord.com:8443/api/webhooks/1/token"));
     }
 }

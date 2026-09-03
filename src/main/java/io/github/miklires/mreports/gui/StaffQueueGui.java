@@ -25,7 +25,7 @@ public final class StaffQueueGui implements Listener {
         QueueHolder holder=new QueueHolder(mapping); Inventory inventory=Bukkit.createInventory(holder,54,ReportService.color(service.text("&cReport Queue","&cОчередь репортов")));holder.inventory(inventory);
         slot=0;for(ReportView report:reports) inventory.setItem(slot++,item(report)); player.openInventory(inventory);
     }));}
-    @EventHandler public void click(InventoryClickEvent event){if(!(event.getInventory().getHolder(false) instanceof QueueHolder holder))return;event.setCancelled(true);if(!(event.getWhoClicked() instanceof Player player))return;Long id=holder.reportAt(event.getRawSlot());if(id==null)return;
+    @EventHandler public void click(InventoryClickEvent event){if(!(event.getInventory().getHolder(false) instanceof QueueHolder holder))return;event.setCancelled(true);if(!(event.getWhoClicked() instanceof Player player)||!player.hasPermission("mreports.staff"))return;Long id=holder.reportAt(event.getRawSlot());if(id==null)return;
         service.repository().claim(id,player.getUniqueId(),player.getName()).whenComplete((claimed,error)->plugin.scheduler().player(player,()->{
             player.closeInventory(); if(error!=null)player.sendMessage(ReportService.color(service.text("&cStorage error.","&cОшибка хранилища."))); else if(claimed){service.notifyChange("claimed",id);player.sendMessage(ReportService.color(service.text("&aYou claimed report #","&aВы взяли репорт #")+id+service.text(". Close it with: /reports resolve ",". Закройте: /reports resolve ")+id+" [note]"));} else player.sendMessage(ReportService.color(service.text("&eAnother moderator already claimed this report.","&eРепорт уже взят другим модератором.")));
         }));

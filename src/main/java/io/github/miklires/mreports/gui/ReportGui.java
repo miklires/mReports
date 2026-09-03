@@ -3,6 +3,8 @@ package io.github.miklires.mreports.gui;
 import io.github.miklires.mreports.MReportsPlugin;
 import io.github.miklires.mreports.report.ReportService;
 import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -18,7 +20,8 @@ public final class ReportGui implements Listener {
     private final MReportsPlugin plugin; private final ReportService service;
     public ReportGui(MReportsPlugin plugin, ReportService service){this.plugin=plugin;this.service=service;}
     public void open(Player player, UUID targetId, String targetName) {
-        CategoryHolder holder = new CategoryHolder(targetId, targetName);
+        Map<Integer,String> mapping = new LinkedHashMap<>(); int mappedSlot=0; for(String category:service.categories()) mapping.put(mappedSlot++,category);
+        CategoryHolder holder = new CategoryHolder(targetId, targetName, mapping);
         Inventory inventory = Bukkit.createInventory(holder, 54, ReportService.color(service.text("&cReport: ","&cРепорт: ") + targetName)); holder.inventory(inventory);
         int slot=0; for(String category: service.categories()) inventory.setItem(slot++, item(category));
         player.openInventory(inventory);
@@ -27,11 +30,11 @@ public final class ReportGui implements Listener {
         if (!(event.getInventory().getHolder(false) instanceof CategoryHolder holder)) return;
         event.setCancelled(true);
         if (!(event.getWhoClicked() instanceof Player player)) return;
-        ItemStack clicked=event.getCurrentItem(); if(clicked==null || !clicked.hasItemMeta()) return;
-        String category=org.bukkit.ChatColor.stripColor(clicked.getItemMeta().getDisplayName()); player.closeInventory();
+        String category=holder.categoryAt(event.getRawSlot()); if(category==null || !player.hasPermission("mreports.use")) return; player.closeInventory();
         submit(player,holder.targetId(),holder.targetName(),category,"Submitted from category GUI");
     }
     public void submit(Player player, UUID target, String name, String category, String details) {
+        if(!player.hasPermission("mreports.use")){player.sendMessage(ReportService.color(service.text("&cYou do not have permission.","&cНедостаточно прав.")));return;}
         Player online=Bukkit.getPlayer(target); boolean exempt=online!=null && online.hasPermission("mreports.exempt");
         service.submit(player,target,name,category,details,exempt).whenComplete((result,error)->plugin.scheduler().player(player,()->{
             if(error!=null){player.sendMessage(ReportService.color(service.text("&cCould not save the report.","&cНе удалось сохранить репорт.")));return;}

@@ -51,7 +51,8 @@ public final class ReportService {
         if (decision != ReportPolicy.Result.ALLOWED) return CompletableFuture.completedFuture(new SubmitResult(null, Failure.valueOf(decision.name())));
         long window = seconds("submission.duplicate-window-seconds", 300) * 1_000L;
         return repository.submit(reporter.getUniqueId(), reporter.getName(), targetId, targetName, normalized, cleanDetails, window)
-                .thenCompose(submission -> repository.addEvidence(submission.report().id(), evidence.snapshot(targetId)).thenApply(ignored -> submission))
+                .thenCompose(submission -> repository.addEvidence(submission.report().id(), evidence.snapshot(targetId))
+                        .handle((ignored, error) -> { if (error != null) plugin.getLogger().warning("Could not attach chat evidence to report #" + submission.report().id()); return submission; }))
                 .thenApply(submission -> {
                     notifyStaff(submission.report().id(), reporter.getName(), targetName, normalized, submission.merged());
                     discord.send(submission.merged() ? "updated" : "created", submission.report());

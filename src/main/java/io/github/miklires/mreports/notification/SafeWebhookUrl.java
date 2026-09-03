@@ -12,7 +12,7 @@ public final class SafeWebhookUrl {
         try {
             URI uri = URI.create(value.trim());
             String host = uri.getHost() == null ? "" : uri.getHost().toLowerCase(Locale.ROOT);
-            if (!"https".equalsIgnoreCase(uri.getScheme()) || !HOSTS.contains(host) || uri.getUserInfo() != null
+            if (!"https".equalsIgnoreCase(uri.getScheme()) || !HOSTS.contains(host) || (uri.getPort() != -1 && uri.getPort() != 443) || uri.getUserInfo() != null
                     || uri.getFragment() != null || uri.getPath() == null || !uri.getPath().startsWith("/api/webhooks/")) return null;
             return uri;
         } catch (IllegalArgumentException exception) { return null; }
