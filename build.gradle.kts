@@ -26,7 +26,7 @@ tasks {
 }
 modrinth {
     token.set(System.getenv("MODRINTH_TOKEN") ?: "")
-    projectId.set(System.getenv("MODRINTH_PROJECT_ID") ?: "")
+    projectId.set(System.getenv("MODRINTH_PROJECT_ID") ?: "ZRybXlNb")
     versionNumber.set(project.version.toString()); versionName.set("mReports ${project.version}"); versionType.set("release")
     uploadFile.set(tasks.shadowJar); gameVersions.add("26.2"); loaders.addAll("paper", "purpur", "folia")
     changelog.set(provider { file("CHANGELOG.md").readText() }); syncBodyFrom.set(file("README.md").readText())

@@ -18,4 +18,5 @@ jobs:
       - run: ./gradlew modrinth
         env:
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
-          MODRINTH_PROJECT_ID: ${{ secrets.MODRINTH_PROJECT_ID }}
+          # Public project ID; keeping it here prevents a stale cross-project secret.
+          MODRINTH_PROJECT_ID: ZRybXlNb
