@@ -17,6 +17,7 @@
 - Prevents self-reports, exempt-target reports and rapid submission spam.
 - Lets one staff member claim a report, then resolve or reject it with a note.
 - Records creation, merges, claims, notes and closing decisions in an audit trail.
+- Captures a short, bounded recent-chat snapshot from the reported player when a report is accepted.
 - Recovers the open queue after restart and removes expired closed reports by retention policy.
 
 ## Requirements

@@ -16,6 +16,17 @@ submission:
 storage:
   # Closed reports older than this are removed on startup (1..36,500 days).
   retention-days: 90
+evidence:
+  chat:
+    enabled: true
+    retention-seconds: 300
+    maximum-messages-per-player: 10
+    maximum-message-length: 256
+    maximum-tracked-players: 10000
+discord:
+  enabled: false
+  # Only HTTPS discord.com/discordapp.com /api/webhooks URLs are accepted.
+  webhook-url: ""
 metrics:
   # Disabled until a public bStats project ID is assigned.
   enabled: false

@@ -47,17 +47,22 @@ public final class ReportsCommand implements BasicCommand {
             case "view" -> service.repository().find(id).whenComplete((found, error) -> schedule(sender, () -> {
                 if (error != null) storageError(sender); else message(sender, found.map(this::line).orElse(service.text("&cReport not found.", "&cРепорт не найден.")));
             }));
-            case "claim" -> result(sender, service.repository().claim(id, actor, sender.getName()), "Report claimed.", "Репорт взят.");
-            case "release" -> result(sender, service.repository().release(id, actor, sender.getName()), "Report released.", "Репорт освобождён.");
+            case "evidence" -> service.repository().evidence(id, 30).whenComplete((entries, error) -> schedule(sender, () -> {
+                if (error != null) { storageError(sender); return; }
+                message(sender, service.text("&eStored chat evidence: &f", "&eСохранённый контекст чата: &f") + entries.size());
+                entries.forEach(entry -> message(sender, "&8[" + entry.occurredAt() + "] &7" + entry.sourceName() + ": &f" + entry.body()));
+            }));
+            case "claim" -> result(sender, service.repository().claim(id, actor, sender.getName()), "Report claimed.", "Репорт взят.", "claimed", id);
+            case "release" -> result(sender, service.repository().release(id, actor, sender.getName()), "Report released.", "Репорт освобождён.", "released", id);
             case "priority" -> priority(sender, args, id, actor);
             case "resolve", "reject" -> {
                 ReportStatus status = action.equals("resolve") ? ReportStatus.RESOLVED : ReportStatus.REJECTED;
                 String note = args.length < 3 ? "" : join(args, 2, 2000);
-                result(sender, service.repository().close(id, actor, sender.getName(), status, note), "Report closed: " + status, "Репорт закрыт: " + status);
+                result(sender, service.repository().close(id, actor, sender.getName(), status, note), "Report closed: " + status, "Репорт закрыт: " + status, status.name().toLowerCase(Locale.ROOT), id);
             }
             case "note" -> {
                 if (args.length < 3) { usage(sender); return; }
-                result(sender, service.repository().addNote(id, actor, sender.getName(), join(args, 2, 2000)), "Note added.", "Заметка добавлена.");
+                result(sender, service.repository().addNote(id, actor, sender.getName(), join(args, 2, 2000)), "Note added.", "Заметка добавлена.", "note added", id);
             }
             default -> usage(sender);
         }
@@ -81,7 +86,7 @@ public final class ReportsCommand implements BasicCommand {
         if (args.length < 3) { usage(sender); return; }
         try {
             ReportPriority priority = ReportPriority.valueOf(args[2].toUpperCase(Locale.ROOT));
-            result(sender, service.repository().setPriority(id, actor, sender.getName(), priority), "Priority updated.", "Приоритет обновлён.");
+            result(sender, service.repository().setPriority(id, actor, sender.getName(), priority), "Priority updated.", "Приоритет обновлён.", "priority changed", id);
         } catch (IllegalArgumentException exception) { usage(sender); }
     }
 
@@ -98,21 +103,21 @@ public final class ReportsCommand implements BasicCommand {
                 + " &7" + report.status() + " &6" + report.priority() + " &7x" + report.duplicateCount() + "\n&8" + report.details();
     }
 
-    private void result(CommandSender sender, CompletableFuture<Boolean> future, String english, String russian) {
+    private void result(CommandSender sender, CompletableFuture<Boolean> future, String english, String russian, String action, long id) {
         future.whenComplete((success, error) -> schedule(sender, () -> {
             if (error != null) storageError(sender);
-            else message(sender, success ? "&a" + service.text(english, russian) : service.text("&cOperation rejected; check the ID, status, and assignee.", "&cОперация отклонена: проверьте ID, статус и обработчика."));
+            else { if (success) service.notifyChange(action, id); message(sender, success ? "&a" + service.text(english, russian) : service.text("&cOperation rejected; check the ID, status, and assignee.", "&cОперация отклонена: проверьте ID, статус и обработчика.")); }
         }));
     }
 
     private void storageError(CommandSender sender) { message(sender, service.text("&cStorage operation failed.", "&cОшибка хранилища.")); }
     private void message(CommandSender sender, String text) { sender.sendMessage(ReportService.color(text)); }
     private void schedule(CommandSender sender, Runnable task) { if (sender instanceof Player player) plugin.scheduler().player(player, task); else plugin.scheduler().global(task); }
-    private static String join(String[] args, int start, int maximum) { String value = String.join(" ", Arrays.copyOfRange(args, start, args.length)).trim(); if (value.length() > maximum) throw new IllegalArgumentException("Text is too long"); return value; }
-    private static void usage(CommandSender sender) { sender.sendMessage("/reports [view|claim|release|priority|resolve|reject|note|search|history|reload] ..."); }
+    private static String join(String[] args, int start, int maximum) { String value = String.join(" ", Arrays.copyOfRange(args, start, args.length)).trim(); return value.length() <= maximum ? value : value.substring(0, maximum); }
+    private static void usage(CommandSender sender) { sender.sendMessage("/reports [view|evidence|claim|release|priority|resolve|reject|note|search|history|reload] ..."); }
 
     @Override public @NotNull Collection<String> suggest(@NotNull CommandSourceStack source, @NotNull String[] args) {
-        if (args.length <= 1) return List.of("view", "claim", "release", "priority", "resolve", "reject", "note", "search", "history", "reload");
+        if (args.length <= 1) return List.of("view", "evidence", "claim", "release", "priority", "resolve", "reject", "note", "search", "history", "reload");
         if (args.length == 2 && args[0].equalsIgnoreCase("history")) return Bukkit.getOnlinePlayers().stream().map(Player::getName).toList();
         if (args.length == 3 && args[0].equalsIgnoreCase("priority")) return Arrays.stream(ReportPriority.values()).map(value -> value.name().toLowerCase(Locale.ROOT)).toList();
         return List.of();

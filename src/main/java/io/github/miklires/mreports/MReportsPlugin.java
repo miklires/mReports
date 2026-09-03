@@ -6,6 +6,7 @@ import io.github.miklires.mreports.command.ReportCommand;
 import io.github.miklires.mreports.command.ReportsCommand;
 import io.github.miklires.mreports.gui.ReportGui;
 import io.github.miklires.mreports.gui.StaffQueueGui;
+import io.github.miklires.mreports.evidence.ChatEvidenceService;
 import io.github.miklires.mreports.report.ReportService;
 import io.github.miklires.mreports.storage.ReportRepository;
 import io.github.miklires.mreports.util.PluginScheduler;
@@ -28,11 +29,13 @@ public final class MReportsPlugin extends JavaPlugin {
         scheduler = new PluginScheduler(this);
         try {
             repository = new ReportRepository(getDataFolder().toPath().resolve("data").resolve("mreports"));
-            service = new ReportService(this, repository);
+            ChatEvidenceService evidence = new ChatEvidenceService(this);
+            service = new ReportService(this, repository, evidence);
             ReportGui reportGui = new ReportGui(this, service);
             StaffQueueGui queueGui = new StaffQueueGui(this, service);
             getServer().getPluginManager().registerEvents(reportGui, this);
             getServer().getPluginManager().registerEvents(queueGui, this);
+            getServer().getPluginManager().registerEvents(evidence, this);
             getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
                 event.registrar().register("report", "Submit a player report", List.of(), new ReportCommand(service, reportGui));
                 event.registrar().register("reports", "Moderation report queue", List.of("mreports"), new ReportsCommand(this, service, queueGui));

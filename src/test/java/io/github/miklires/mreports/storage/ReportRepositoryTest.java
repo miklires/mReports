@@ -5,6 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import io.github.miklires.mreports.api.ReportStatus;
 import io.github.miklires.mreports.api.ReportPriority;
+import io.github.miklires.mreports.evidence.EvidenceView;
+import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
@@ -33,6 +36,8 @@ class ReportRepositoryTest {
             assertTrue(repository.claim(id, moderator, "Mod").join());
             assertTrue(repository.release(id, moderator, "Mod").join());
             assertEquals(ReportStatus.OPEN, repository.find(id).join().orElseThrow().status());
+            assertEquals(1, repository.addEvidence(id, List.of(new EvidenceView(target, "Target", "recent message", Instant.EPOCH))).join());
+            assertEquals("recent message", repository.evidence(id, 10).join().getFirst().body());
         }
     }
 

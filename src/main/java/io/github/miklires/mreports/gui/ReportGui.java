@@ -19,8 +19,8 @@ public final class ReportGui implements Listener {
     public ReportGui(MReportsPlugin plugin, ReportService service){this.plugin=plugin;this.service=service;}
     public void open(Player player, UUID targetId, String targetName) {
         CategoryHolder holder = new CategoryHolder(targetId, targetName);
-        Inventory inventory = Bukkit.createInventory(holder, 27, ReportService.color(service.text("&cReport: ","&cРепорт: ") + targetName)); holder.inventory(inventory);
-        int slot=10; for(String category: service.categories()) { if(slot==17) break; inventory.setItem(slot++, item(category)); }
+        Inventory inventory = Bukkit.createInventory(holder, 54, ReportService.color(service.text("&cReport: ","&cРепорт: ") + targetName)); holder.inventory(inventory);
+        int slot=0; for(String category: service.categories()) inventory.setItem(slot++, item(category));
         player.openInventory(inventory);
     }
     @EventHandler public void click(InventoryClickEvent event) {
@@ -35,7 +35,7 @@ public final class ReportGui implements Listener {
         Player online=Bukkit.getPlayer(target); boolean exempt=online!=null && online.hasPermission("mreports.exempt");
         service.submit(player,target,name,category,details,exempt).whenComplete((result,error)->plugin.scheduler().player(player,()->{
             if(error!=null){player.sendMessage(ReportService.color(service.text("&cCould not save the report.","&cНе удалось сохранить репорт.")));return;}
-            if(!result.success()){player.sendMessage(ReportService.color(service.text("&cReport rejected: &f","&cРепорт отклонён: &f")+result.failure()));return;}
+            if(!result.success()){player.sendMessage(ReportService.color(service.text("&cReport rejected: &f","&cРепорт отклонён: &f")+service.failure(result.failure())));return;}
             player.sendMessage(ReportService.color(service.text("&aReport #","&aРепорт #")+result.submission().report().id()+service.text(" accepted"," принят")+(result.submission().merged()?service.text(" and merged with the previous report."," и объединён с предыдущим."):".")));
         }));
     }
