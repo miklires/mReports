@@ -3,16 +3,30 @@ version: ${version}
 main: io.github.miklires.mreports.MReportsPlugin
 api-version: '26.2'
 author: miklires
-description: Auditable player reports and moderation queue
+description: Auditable player reports, evidence snapshots, and moderation workflows
 folia-supported: true
 softdepend: [mChat, mBans, PlaceholderAPI]
 libraries:
   - com.h2database:h2:2.3.232
 permissions:
-  mreports.use: { default: true }
-  mreports.notify: { default: op }
-  mreports.exempt: { default: false }
-  mreports.bypass.cooldown: { default: op }
-  mreports.history.own: { default: true }
-  mreports.staff: { default: op }
-  mreports.reload: { default: op }
+  mreports.use:
+    description: Submit player reports
+    default: true
+  mreports.history.own:
+    description: View your own recent reports
+    default: true
+  mreports.notify:
+    description: Receive new-report alerts
+    default: op
+  mreports.staff:
+    description: View and process the staff report queue
+    default: op
+  mreports.reload:
+    description: Reload and validate mReports configuration
+    default: op
+  mreports.exempt:
+    description: Prevent other players from reporting this account
+    default: false
+  mreports.bypass.cooldown:
+    description: Bypass submission cooldown and rolling limits
+    default: op

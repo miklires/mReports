@@ -4,7 +4,7 @@ plugins {
     id("com.modrinth.minotaur") version "2.9.0"
 }
 group = "io.github.miklires"
-version = "1.0.0"
+version = "1.1.0"
 java { toolchain.languageVersion.set(JavaLanguageVersion.of(25)) }
 repositories { mavenCentral(); maven("https://repo.papermc.io/repository/maven-public/") }
 dependencies {

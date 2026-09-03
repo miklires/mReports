@@ -14,7 +14,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v6
       - run: ./gradlew clean build --no-daemon
       - uses: softprops/action-gh-release@v2
-        with: { files: build/libs/mReports-*.jar }
+        with: { files: build/libs/mReports-1.1.0.jar }
       - run: ./gradlew modrinth
         env:
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
